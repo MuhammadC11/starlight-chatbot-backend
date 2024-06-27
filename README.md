@@ -37,7 +37,6 @@ Before you begin, ensure you have the following installed on your machine:
 1. Clone the repository:
     ```bash
     git clone https://github.com/MuhammadC11/starlight-chatbot-backend.git
-    cd starlight-chatbot-backend
     ```
 
 2. Install the dependencies:
@@ -52,15 +51,14 @@ Before you begin, ensure you have the following installed on your machine:
 
 4. Start the server:
     ```bash
-    npm start
+    node index.js
     ```
 
     The server should now be running on `http://localhost:5001`.
 
 ## Usage
 
-To interact with the chatbot, you can send HTTP requests to the server using tools like Postman, curl, or through the frontend application.
-
+To interact with the chatbot, you can send HTTP requests to the server using tools like Postman, curl, or through the frontend application. In our case, its our front end application that should be running while this server is running
 ## API Endpoints
 
 ### POST /chat
@@ -147,9 +145,11 @@ starlight-chatbot-backend/
 
 The backend implementation started with setting up an Express server and configuring middleware such as `body-parser` for parsing incoming requests and `cors` for handling cross-origin resource sharing. A `.env` file was used to securely manage the Google Generative AI API key.
 
-The chatbot functionality was implemented using the `@google/generative-ai` package. The `GoogleGenerativeAI` class was instantiated with the API key, and the `gemini-1.5-pro` model was selected for generating responses.
+The chatbot functionality was implemented using the `@google/generative-ai` package. I used the `gemini-1.5-pro` model for generating responses.
 
-A key challenge was ensuring that the chat history was maintained across multiple requests. This was handled using an in-memory `messages` array. Debugging issues related to environment variables and API key validation required careful attention to detail.
+A key challenge was ensuring that the chat history was maintained across multiple requests. This was handled using a `messages` array.
+
+The first challenge I ran into was a silly mistake on my part, I named the .env file as variables.env and for some reason, the server could not load a file named like that so when I finally realized after console logging the key, I changed it to just .env. After that the main challenge was the prompt engineering for the bot, I had to set some rules and what the users can ask and what they can't. I had to ensure that users couldn't override the first default prompt given to the bot. I also didn't want the text coming out with markdown format as it did not look good so I specified that in the prompt but the bot still ignores that from time to time.
 
 Additional challenges included handling special characters in the chatbot's responses and ensuring that the chat history could be reset to start a new conversation. These issues were addressed through string manipulation and implementing a `/clear` endpoint.
 
