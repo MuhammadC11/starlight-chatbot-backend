@@ -10,11 +10,13 @@ const { GoogleGenerativeAI } = require("@google-generative-ai");
 app.use(cors());
 app.use(bodyParser.json());
 
-const messages = [];
+const messages = []; // In-memory storage for messages
 
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
-  const apiKey = "YOUR_GOOGLE_GEMINI_API_KEY"; // Replace with your actual API key
+  const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+
+  messages.push({ user: message });
 
   try {
     const response = await axios.post(
@@ -32,11 +34,18 @@ app.post("/chat", async (req, res) => {
       }
     );
 
-    res.json({ answer: response.data.choices[0].text.trim() });
+    const botResponse = response.data.choices[0].text.trim();
+    messages.push({ bot: botResponse });
+
+    res.json({ answer: botResponse, messages });
   } catch (error) {
     console.error(error);
     res.status(500).send("Something went wrong");
   }
+});
+
+app.get("/messages", (req, res) => {
+  res.json(messages);
 });
 
 app.listen(PORT, () => {
