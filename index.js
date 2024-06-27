@@ -10,34 +10,32 @@ const { GoogleGenerativeAI } = require("@google-generative-ai");
 app.use(cors());
 app.use(bodyParser.json());
 
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
 const messages = []; // In-memory storage for messages
 
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
 
-  messages.push({ user: message });
+  messages.push({ role: "user", text: "" });
 
   try {
-    const response = await axios.post(
-      "https://gemini-api-endpoint-url",
-      {
-        prompt: `You are a chatbot that answers questions about famous landmarks. ${message}`,
-        max_tokens: 150,
-        temperature: 0.7,
+    const chat = model.startChat({
+      history: messages,
+      generationConfig: {
+        maxOutputTokens: 500,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    });
 
-    const botResponse = response.data.choices[0].text.trim();
-    messages.push({ bot: botResponse });
+    const result = await chat.sendMessage(message);
+    const response = await result.response;
+    const text = await response.text();
 
-    res.json({ answer: botResponse, messages });
+    messages.push({ role: "model", text });
+    res.json({ answer: text, messages });
+    console.log(text);
   } catch (error) {
     console.error(error);
     res.status(500).send("Something went wrong");
