@@ -5,7 +5,7 @@ const axios = require("axios");
 const cors = require("cors");
 const app = express();
 const PORT = 5001;
-const { GoogleGenerativeAI } = require("@google-generative-ai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -19,7 +19,10 @@ app.post("/chat", async (req, res) => {
   const { message } = req.body;
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
 
-  messages.push({ role: "user", text: "" });
+  messages.push({
+    role: "user",
+    text: "You are a AI Chatbot who specializes in answering questions about famous Landmarks",
+  });
 
   try {
     const chat = model.startChat({
